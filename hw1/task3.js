@@ -3,8 +3,7 @@ import fs from "fs";
 import CONSTANTS from "./constants";
 
 const writeOutput = fs.createWriteStream("output2.txt");
-const source = fs
-  .createReadStream(CONSTANTS.PATH_TASK_2)
+fs.createReadStream(CONSTANTS.PATH_TASK_2)
   .pipe(csv())
   .on("data", (data) => {
     writeOutput.write(data);

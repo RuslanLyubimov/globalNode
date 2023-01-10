@@ -4,8 +4,7 @@ const csv = require("csvtojson");
 const CONSTANTS = require("./constants");
 
 const writeOutput = fs.createWriteStream("output.txt");
-const source = fs
-  .createReadStream(CONSTANTS.PATH_TASK_2)
+fs.createReadStream(CONSTANTS.PATH_TASK_2)
   .pipe(csv())
   .on("data", (data) => {
     writeOutput.write(data);
