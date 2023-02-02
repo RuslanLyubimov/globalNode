@@ -1,4 +1,4 @@
-Task1 :
+### Task1 :
 
 Write a program which reads a string from the standard input stdin, reverses it and then writes it to
 the standard output stdout.
@@ -7,7 +7,7 @@ the standard output stdout.
 
 • The program should be running in a stand-by mode and should not be terminated after the first-string processing.
 
-TASK 1.2
+### TASK 1.2
 
 Write a program which should do the following:
 
@@ -26,6 +26,35 @@ line).
 
 • The program should be started via npm script using nodemon (i.e. npm run task2).
 
-TASK 1.3
+### TASK 1.3
 
 Rewrite the above-mentioned programs to use babel (https://babeljs.io/) and ES6 modules.
+
+### TASK 2.1
+
+Write a simple REST service withCRUD operations for User entity.
+
+- To create REST service,use ExpressJS (https://expressjs.com/)
+- Service should have the following CRUD operations for User:
+
+  - get user by id;
+  - create and update user;
+  - get auto-suggest list from limitusers, sorted by login property and filtered
+    by loginSubstringin the login property. getAutoSuggestUsers(loginSubstring, limit)
+  - remove user (soft delete–user gets marked with isDeletedflag, but not
+    removed from the collection).
+
+- Store user’scollection in the service memory (while the service is running).
+
+### TASK 2.2
+
+Add server-side validation for create/update operations of Userentity:
+
+- all fields are required;
+- login validationis required;
+- password must contain letters and numbers;
+- user’s age must be between 4 and 130.
+
+In case of any property does not meet the validation requirements or the field
+is absent, return 400 (Bad Request) and detailed error message. For requests
+validation use special packages like joi.
