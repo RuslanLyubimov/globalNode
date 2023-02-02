@@ -1,4 +1,4 @@
-const DB = [
+const Users = [
   {
     login: "ruslan",
     password: 123,
@@ -15,4 +15,4 @@ const DB = [
   },
 ];
 
-module.exports = { DB };
+module.exports = { Users };
