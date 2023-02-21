@@ -1,6 +1,9 @@
 const express = require("express");
 const validator = require("express-joi-validation").createValidator({});
-import { userSchema, queryParamSchema } from "../validators/validation";
+import {
+  userSchema,
+  queryParamSchema,
+} from "../Middlewares/validators/validation";
 
 import {
   getUsersBySubstring,

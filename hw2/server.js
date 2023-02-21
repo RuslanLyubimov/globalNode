@@ -1,3 +1,5 @@
+import { runDb } from "./Middlewares/db-config/connector";
+
 const express = require("express");
 const userRoutes = require("./routes/userRoutes");
 
@@ -7,6 +9,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 app.use("/users", userRoutes);
+runDb();
 
 app.listen(PORT, (err) => {
   if (err) console.log(err);
