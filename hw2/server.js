@@ -1,5 +1,4 @@
 import { runDb } from "./Middlewares/db-config/connector";
-
 const express = require("express");
 const userRoutes = require("./routes/userRoutes");
 

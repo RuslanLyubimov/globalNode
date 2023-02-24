@@ -1,7 +1,15 @@
+require("dotenv").config();
 const { Sequelize } = require("sequelize");
 
 export const sequelize = new Sequelize(
-  "postgres://sbpxwecv:7toJ_0ofFGm2sjVN9ktZftGqvasq9ohk@mouse.db.elephantsql.com/sbpxwecv"
+  process.env.DB_NAME,
+  process.env.LOGIN,
+  process.env.PASSWORD,
+  {
+    host: process.env.HOST,
+    port: process.env.DB_PORT,
+    dialect: "postgres",
+  }
 );
 
 export const runDb = async () => {
