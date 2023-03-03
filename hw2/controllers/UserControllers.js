@@ -1,27 +1,25 @@
-const { v4: uuidv4 } = require("uuid");
-import { Users } from "../model/UserData";
+import { User } from "../model/UserData";
+import { Op } from "sequelize";
 
 const findUser = (reqId) => {
-  return Users.find(({ id }) => id === reqId);
-};
-
-const createUser = (req) => {
-  req.body["id"] = uuidv4();
-  req.body["isDeleted"] = false;
-  Users.push(req.body);
+  return User.findByPk(reqId);
 };
 
 const getAutoSuggestUsers = (loginSubstring, limit) => {
-  return Users.filter(
-    (user) => !user.isDeleted && user.login.includes(loginSubstring)
-  )
-    .sort((a, b) => a.login.localeCompare(b.login))
-    .slice(0, limit);
+  return User.findAll({
+    where: {
+      login: {
+        [Op.iLike]: `%${loginSubstring}%`,
+      },
+    },
+    order: ["login"],
+    limit,
+  });
 };
 
-export const getUsersBySubstring = (req, res) => {
+export const getUsersBySubstring = async (req, res) => {
   const { loginSubstring = "", limit = users.length } = req.query;
-  const list = getAutoSuggestUsers(loginSubstring, limit);
+  const list = await getAutoSuggestUsers(loginSubstring, limit);
   if (list === undefined || list.length === 0) {
     res.status(404).json({ message: "No users(" });
   } else {
@@ -29,42 +27,73 @@ export const getUsersBySubstring = (req, res) => {
   }
 };
 
-export const getUsersByID = (req, res) => {
-  const user = findUser(req.params.id);
-  if (user === undefined) {
-    res
-      .status(404)
-      .json({ message: `User with id ${req.params.id} not found!` });
-  } else {
-    res.json({ user });
+export const getUsersByID = async (req, res) => {
+  try {
+    const user = await findUser(req.params.id);
+    if (user) {
+      res.json(user);
+    } else {
+      res
+        .status(404)
+        .json({ message: `User with id ${req.params.id} not found!` });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export const postUser = (req, res) => {
-  createUser(req);
-  res.json({ message: "User was created!" });
+export const postUser = async (req, res) => {
+  try {
+    const { login, password, age } = req.body;
+    const newUser = await User.create({ login, password, age });
+    res.status(201).json(newUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 export const putUser = (req, res) => {
-  const user = findUser(req.params.id);
+  const id = req.params.id;
   const { login, password, age } = req.body;
-
-  if (user === undefined || user.isDeleted) {
-    res.status(404).send("User not found");
-  } else {
-    user.login = login;
-    user.password = password;
-    user.age = age;
-    res.json({ user });
-  }
+  User.update(
+    {
+      login,
+      password,
+      age,
+    },
+    {
+      where: {
+        id,
+        isDeleted: false,
+      },
+      returning: true,
+    }
+  )
+    .then(() => res.sendStatus(200))
+    .catch((error) => {
+      console.log(error);
+      res.sendStatus(500);
+    });
 };
 
-export const deleteUser = (req, res) => {
-  const userDelete = findUser(req.params.id);
-  if (userDelete === undefined || userDelete.isDeleted) {
-    res.status(404).send("User is not found(");
-  } else {
-    userDelete.isDeleted = true;
-    res.json({ user: userDelete });
-  }
+export const deleteUser = async (req, res) => {
+  const id = req.params.id;
+  User.update(
+    {
+      isDeleted: true,
+    },
+    {
+      where: {
+        id,
+        isDeleted: false,
+      },
+    }
+  )
+    .then(() => res.sendStatus(200))
+    .catch((error) => {
+      console.log(error);
+      res.sendStatus(500);
+    });
 };

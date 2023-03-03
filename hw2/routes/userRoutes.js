@@ -1,6 +1,9 @@
 const express = require("express");
 const validator = require("express-joi-validation").createValidator({});
-import { userSchema, queryParamSchema } from "../validators/validation";
+import {
+  userSchema,
+  queryParamSchema,
+} from "../Middlewares/validators/validation";
 
 import {
   getUsersBySubstring,
@@ -14,13 +17,12 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(validator.query(queryParamSchema), getUsersBySubstring)
-  .post(validator.body(userSchema), postUser);
+  .post(validator.body(userSchema), postUser)
+  .get(validator.query(queryParamSchema), getUsersBySubstring);
 
 router
   .route("/:id")
   .get(getUsersByID)
   .put(validator.body(userSchema), putUser)
   .delete(deleteUser);
-
 module.exports = router;
