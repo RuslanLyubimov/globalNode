@@ -1,5 +1,6 @@
 import { User } from "../model/UserData";
 import { Op } from "sequelize";
+import { v4 as uuidv4 } from "uuid";
 
 const findUser = (reqId) => {
   return User.findByPk(reqId);
@@ -46,7 +47,8 @@ export const getUsersByID = async (req, res) => {
 export const postUser = async (req, res) => {
   try {
     const { login, password, age } = req.body;
-    const newUser = await User.create({ login, password, age });
+    const id = uuidv4();
+    const newUser = await User.create({ id, login, password, age });
     res.status(201).json(newUser);
   } catch (err) {
     console.error(err);
