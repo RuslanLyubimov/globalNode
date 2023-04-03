@@ -32,12 +32,18 @@ UserGroup.init(
 
 User.belongsToMany(GroupModel, {
   through: "UserGroup",
+  onDelete: "CASCADE",
   foreignKey: "userId",
 });
 
 GroupModel.belongsToMany(User, {
   through: "UserGroup",
+  onDelete: "CASCADE",
   foreignKey: "groupId",
+});
+
+UserGroup.beforeCreate((instance, options) => {
+  instance.id = uuidv4();
 });
 
 sequelize.sync();

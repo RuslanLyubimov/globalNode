@@ -1,4 +1,5 @@
 import { sequelize } from "../Middlewares/db-config/connector";
+import { v4 as uuidv4 } from "uuid";
 const { Sequelize, DataTypes, UUIDV4 } = require("sequelize");
 
 export const GroupModel = sequelize.define(
@@ -26,3 +27,7 @@ export const GroupModel = sequelize.define(
 );
 
 sequelize.sync();
+
+GroupModel.beforeCreate((instance, options) => {
+  instance.id = uuidv4();
+});

@@ -1,6 +1,5 @@
 import { GroupModel } from "../model/GroupData";
 import { User } from "../model/UserData";
-import { v4 as uuidv4 } from "uuid";
 import { sequelize } from "../Middlewares/db-config/connector";
 
 const UserGroupModel = require("../model/UserGroupData");
@@ -42,8 +41,7 @@ export const getGroupByID = async (req, res) => {
 export const postGroup = async (req, res) => {
   try {
     const { name, permissions } = req.body;
-    const id = uuidv4();
-    const newGroup = await GroupModel.create({ id, name, permissions });
+    const newGroup = await GroupModel.create({ name, permissions });
     res.status(201).json(newGroup);
   } catch (err) {
     console.error(err);
@@ -99,11 +97,9 @@ const addUsersToGroup = async (groupId, data) => {
       transaction,
     });
 
-    const relationId = uuidv4();
     const usersGroups = await UserGroupModel.bulkCreate(
       users.map((user) => {
         return {
-          id: relationId,
           userId: user.id,
           groupId: group.id,
         };

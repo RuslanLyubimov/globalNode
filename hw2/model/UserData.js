@@ -1,4 +1,5 @@
 import { sequelize } from "../Middlewares/db-config/connector";
+import { v4 as uuidv4 } from "uuid";
 const { Sequelize, DataTypes, UUIDV4 } = require("sequelize");
 
 export const User = sequelize.define(
@@ -35,3 +36,7 @@ export const User = sequelize.define(
 );
 
 sequelize.sync();
+
+User.beforeCreate((instance, options) => {
+  instance.id = uuidv4();
+});
