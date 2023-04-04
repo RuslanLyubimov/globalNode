@@ -2,8 +2,8 @@ import { sequelize } from "../Middlewares/db-config/connector";
 import { v4 as uuidv4 } from "uuid";
 const { Sequelize, DataTypes, UUIDV4 } = require("sequelize");
 
-export const User = sequelize.define(
-  "Users",
+export const GroupModel = sequelize.define(
+  "Groups",
   {
     id: {
       type: DataTypes.UUID,
@@ -11,22 +11,13 @@ export const User = sequelize.define(
       allowNull: false,
       defaultValue: UUIDV4,
     },
-    login: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.TEXT,
+    name: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    age: {
-      type: DataTypes.INTEGER,
+    permissions: {
+      type: DataTypes.ARRAY(DataTypes.TEXT),
       allowNull: false,
-    },
-    isDeleted: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
     },
   },
   {
@@ -37,6 +28,6 @@ export const User = sequelize.define(
 
 sequelize.sync();
 
-User.beforeCreate((instance, options) => {
+GroupModel.beforeCreate((instance, options) => {
   instance.id = uuidv4();
 });
