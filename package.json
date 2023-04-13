@@ -26,7 +26,8 @@
     "pg-hstore": "^2.3.4",
     "prompt-sync": "^4.2.0",
     "sequelize": "^6.28.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "eslint": "^8.33.0"
