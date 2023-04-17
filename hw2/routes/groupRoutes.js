@@ -10,21 +10,22 @@ import {
   postUserGroup,
 } from "../controllers/GroupControllers";
 
+import { logErrors } from "../Middlewares/Loggers/logServiceMethods";
 import { groupSchema } from "../Middlewares/validators/validation";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(getAllGroups)
-  .post(validator.body(groupSchema), postGroup);
+  .get(logErrors(getAllGroups))
+  .post(validator.body(groupSchema), logErrors(postGroup));
 
 router
   .route("/:id")
-  .get(getGroupByID)
-  .put(validator.body(groupSchema), putGroup)
-  .delete(deleteGroup);
+  .get(logErrors(getGroupByID))
+  .put(validator.body(groupSchema), logErrors(putGroup))
+  .delete(logErrors(deleteGroup));
 
-router.route("/:id/addUsers").post(postUserGroup);
+router.route("/:id/addUsers").post(logErrors(postUserGroup));
 
 module.exports = router;

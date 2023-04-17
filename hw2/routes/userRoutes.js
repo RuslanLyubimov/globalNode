@@ -5,6 +5,8 @@ import {
   queryParamSchema,
 } from "../Middlewares/validators/validation";
 
+import { logErrors } from "../Middlewares/Loggers/logServiceMethods";
+
 import {
   getUsersBySubstring,
   getUsersByID,
@@ -17,12 +19,12 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(validator.body(userSchema), postUser)
-  .get(validator.query(queryParamSchema), getUsersBySubstring);
+  .post(validator.body(userSchema), logErrors(postUser))
+  .get(validator.query(queryParamSchema), logErrors(getUsersBySubstring));
 
 router
   .route("/:id")
-  .get(getUsersByID)
-  .put(validator.body(userSchema), putUser)
-  .delete(deleteUser);
+  .get(logErrors(getUsersByID))
+  .put(validator.body(userSchema), logErrors(putUser))
+  .delete(logErrors(deleteUser));
 module.exports = router;
