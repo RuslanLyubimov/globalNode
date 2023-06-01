@@ -97,3 +97,16 @@ export const deleteUser = async (req, res) => {
       res.sendStatus(500);
     });
 };
+
+export const getUserByCredentials = (login, password) => {
+  try {
+    return User.findOne({
+      where: {
+        login,
+        password,
+      },
+    });
+  } catch (err) {
+    throw new Error(err);
+  }
+};
