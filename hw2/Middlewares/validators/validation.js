@@ -22,3 +22,8 @@ export const queryParamSchema = Joi.object({
   loginSubstring: Joi.string().required(),
   limit: Joi.number().integer().required(),
 });
+
+export const loginSchema = Joi.object({
+  login: Joi.string().required(),
+  password: Joi.string().required().alphanum(),
+});

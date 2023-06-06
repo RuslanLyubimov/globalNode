@@ -1,14 +1,19 @@
 import { runDb } from "./Middlewares/db-config/connector";
+import cors from "cors";
 import {
   logServiceMethod,
   logger,
 } from "./Middlewares/Loggers/logServiceMethods";
+import { jwtMiddleware } from "./Middlewares/jwtMiddleware";
 const express = require("express");
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
+const loginRoutes = require("./routes/authRoutes");
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(logServiceMethod);
+app.use(jwtMiddleware);
 
 app.use((err, req, res, next) => {
   logger.error(`Unhandled error: ${err.message}`, err);
@@ -17,6 +22,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
+app.use("/", loginRoutes);
 app.use("/users", userRoutes);
 app.use("/groups", groupRoutes);
 
