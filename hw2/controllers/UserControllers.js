@@ -96,9 +96,9 @@ export const deleteUser = (req, res) => {
     });
 };
 
-export const getUserByCredentials = (login, password) => {
+export const getUserByCredentials = async (login, password) => {
   try {
-    return User.findOne({
+    return await User.findOne({
       where: {
         login,
         password,
