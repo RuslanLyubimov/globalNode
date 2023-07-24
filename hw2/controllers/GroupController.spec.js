@@ -9,22 +9,32 @@ import {
 import { GroupModel } from "../model/GroupData";
 import { User } from "../model/UserData";
 
+const statusCodes = require("../constants/constants").HTTP_STATUS;
+
+const httpStatusOK = statusCodes.OK;
+const httpStatusNotFound = statusCodes.NOT_FOUND;
+const httpStatusServerError = statusCodes.INTERNAL_SERVER_ERROR;
+
 jest.mock("../model/GroupData");
 jest.mock("../model/UserData");
 jest.mock("../model/UserGroupData");
 
 describe("getAllGroups", () => {
-  it("should return all groups", async () => {
-    const mockGroups = [
-      { id: 1, name: "Group 1", permissions: "read" },
-      { id: 2, name: "Group 2", permissions: "write" },
-    ];
-    GroupModel.findAll.mockResolvedValue(mockGroups);
+  let res;
 
-    const res = {
+  beforeEach(() => {
+    res = {
       json: jest.fn(),
       status: jest.fn(),
     };
+  });
+
+  it("should return all groups", async () => {
+    const mockGroups = [
+      { id: 1, name: "Group 1", permissions: ["READ"] },
+      { id: 2, name: "Group 2", permissions: ["WRITE"] },
+    ];
+    GroupModel.findAll.mockResolvedValue(mockGroups);
 
     await getAllGroups({}, res);
 
@@ -35,15 +45,10 @@ describe("getAllGroups", () => {
   it("should return a 404 status if no groups are found", async () => {
     GroupModel.findAll.mockResolvedValue(null);
 
-    const res = {
-      json: jest.fn(),
-      status: jest.fn(),
-    };
-
     await getAllGroups({}, res);
 
     expect(GroupModel.findAll).toHaveBeenCalledTimes(1);
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.status).toHaveBeenCalledWith(httpStatusNotFound);
     expect(res.json).toHaveBeenCalledWith({ message: "Groups are not found" });
   });
 
@@ -51,30 +56,30 @@ describe("getAllGroups", () => {
     const error = new Error("Database error");
     GroupModel.findAll.mockRejectedValue(error);
 
-    const res = {
-      json: jest.fn(),
-      status: jest.fn(),
-    };
-
     await getAllGroups({}, res);
 
     expect(GroupModel.findAll).toHaveBeenCalledTimes(1);
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(httpStatusServerError);
     expect(res.json).toHaveBeenCalledWith({ message: "Server error" });
   });
 });
 
 describe("getGroupByID", () => {
+  let res;
+
+  beforeEach(() => {
+    res = {
+      json: jest.fn(),
+      status: jest.fn(),
+    };
+  });
+
   it("should return the group with the specified ID", async () => {
     const mockGroup = { id: 1, name: "Group 1", permissions: "read" };
     GroupModel.findByPk.mockResolvedValue(mockGroup);
 
     const req = {
       params: { id: 1 },
-    };
-    const res = {
-      json: jest.fn(),
-      status: jest.fn(),
     };
 
     await getGroupByID(req, res);
@@ -89,15 +94,11 @@ describe("getGroupByID", () => {
     const req = {
       params: { id: 1 },
     };
-    const res = {
-      json: jest.fn(),
-      status: jest.fn(),
-    };
 
     await getGroupByID(req, res);
 
     expect(GroupModel.findByPk).toHaveBeenCalledWith(1);
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.sendStatus).toHaveBeenCalledWith(httpStatusNotFound);
     expect(res.json).toHaveBeenCalledWith({
       message: "Group with id 1 not found!",
     });
@@ -110,27 +111,28 @@ describe("getGroupByID", () => {
     const req = {
       params: { id: 1 },
     };
-    const res = {
-      json: jest.fn(),
-      status: jest.fn(),
-    };
 
     await getGroupByID(req, res);
 
     expect(GroupModel.findByPk).toHaveBeenCalledWith(1);
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(httpStatusServerError);
     expect(res.json).toHaveBeenCalledWith({ message: "Server error" });
   });
 });
 
 describe("postGroup", () => {
+  let res;
+
+  beforeEach(() => {
+    res = {
+      json: jest.fn(),
+      status: jest.fn(),
+    };
+  });
+
   it("should create a new group", async () => {
     const req = {
       body: { name: "Group 1", permissions: "read" },
-    };
-    const res = {
-      json: jest.fn(),
-      status: jest.fn(),
     };
 
     await postGroup(req, res);
@@ -147,27 +149,28 @@ describe("postGroup", () => {
     const req = {
       body: { name: "Group 1", permissions: "read" },
     };
-    const res = {
-      json: jest.fn(),
-      status: jest.fn(),
-    };
 
     await postGroup(req, res);
 
     expect(GroupModel.create).toHaveBeenCalledWith(req.body);
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(httpStatusServerError);
     expect(res.json).toHaveBeenCalledWith({ message: "Server error" });
   });
 });
 
 describe("putGroup", () => {
+  let res;
+
+  beforeEach(() => {
+    res = {
+      sendStatus: jest.fn(),
+    };
+  });
+
   it("should update the group with the specified ID", async () => {
     const req = {
       params: { id: 1 },
       body: { name: "Group 1 Updated", permissions: "write" },
-    };
-    const res = {
-      sendStatus: jest.fn(),
     };
 
     await putGroup(req, res);
@@ -184,7 +187,7 @@ describe("putGroup", () => {
         returning: true,
       }
     );
-    expect(res.sendStatus).toHaveBeenCalledWith(200);
+    expect(res.sendStatus).toHaveBeenCalledWith(httpStatusOK);
   });
 
   it("should return a 500 status if an error occurs", async () => {
@@ -195,9 +198,6 @@ describe("putGroup", () => {
       params: { id: 1 },
       body: { name: "Group 1 Updated", permissions: "write" },
     };
-    const res = {
-      sendStatus: jest.fn(),
-    };
 
     await putGroup(req, res);
 
@@ -213,17 +213,22 @@ describe("putGroup", () => {
         returning: true,
       }
     );
-    expect(res.sendStatus).toHaveBeenCalledWith(500);
+    expect(res.sendStatus).toHaveBeenCalledWith(httpStatusServerError);
   });
 });
 
 describe("deleteGroup", () => {
+  let res;
+
+  beforeEach(() => {
+    res = {
+      sendStatus: jest.fn(),
+    };
+  });
+
   it("should delete the group with the specified ID", async () => {
     const req = {
       params: { id: 1 },
-    };
-    const res = {
-      sendStatus: jest.fn(),
     };
 
     await deleteGroup(req, res);
@@ -231,7 +236,7 @@ describe("deleteGroup", () => {
     expect(GroupModel.destroy).toHaveBeenCalledWith({
       where: { id: req.params.id },
     });
-    expect(res.sendStatus).toHaveBeenCalledWith(200);
+    expect(res.sendStatus).toHaveBeenCalledWith(httpStatusOK);
   });
 
   it("should return a 500 status if an error occurs", async () => {
@@ -241,20 +246,26 @@ describe("deleteGroup", () => {
     const req = {
       params: { id: 1 },
     };
-    const res = {
-      sendStatus: jest.fn(),
-    };
 
     await deleteGroup(req, res);
 
     expect(GroupModel.destroy).toHaveBeenCalledWith({
       where: { id: req.params.id },
     });
-    expect(res.sendStatus).toHaveBeenCalledWith(500);
+    expect(res.sendStatus).toHaveBeenCalledWith(httpStatusServerError);
   });
 });
 
 describe("postUserGroup", () => {
+  let res;
+
+  beforeEach(() => {
+    res = {
+      status: jest.fn(),
+      send: jest.fn(),
+    };
+  });
+
   it("should add users to the group", async () => {
     const mockGroup = { id: 1, name: "Group 1", permissions: "read" };
     GroupModel.findByPk.mockResolvedValue(mockGroup);
@@ -268,10 +279,6 @@ describe("postUserGroup", () => {
     const req = {
       params: { id: 1 },
       body: { userIds: [1, 2] },
-    };
-    const res = {
-      status: jest.fn(),
-      send: jest.fn(),
     };
 
     await postUserGroup(req, res);
@@ -295,15 +302,11 @@ describe("postUserGroup", () => {
       params: { id: 1 },
       body: { userIds: [1, 2] },
     };
-    const res = {
-      status: jest.fn(),
-      send: jest.fn(),
-    };
 
     await postUserGroup(req, res);
 
     expect(GroupModel.findByPk).toHaveBeenCalledWith(req.params.id);
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.status).toHaveBeenCalledWith(httpStatusNotFound);
     expect(res.send).toHaveBeenCalledWith("Group does not exist");
   });
 
@@ -315,15 +318,11 @@ describe("postUserGroup", () => {
       params: { id: 1 },
       body: { userIds: [1, 2] },
     };
-    const res = {
-      status: jest.fn(),
-      send: jest.fn(),
-    };
 
     await postUserGroup(req, res);
 
     expect(GroupModel.findByPk).toHaveBeenCalledWith(req.params.id);
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(httpStatusServerError);
     expect(res.send).toHaveBeenCalledWith({ message: "Server error" });
   });
 });

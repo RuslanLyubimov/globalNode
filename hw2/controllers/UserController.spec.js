@@ -9,6 +9,12 @@ import {
 import { User } from "../model/UserData";
 import { Op } from "sequelize";
 
+const statusCodes = require("../constants/constants").HTTP_STATUS;
+
+const httpStatusOK = statusCodes.OK;
+const httpStatusNotFound = statusCodes.NOT_FOUND;
+const httpStatusServerError = statusCodes.INTERNAL_SERVER_ERROR;
+
 jest.mock("../model/UserData", () => ({
   User: {
     findByPk: jest.fn(),
@@ -68,7 +74,7 @@ describe("User Controller", () => {
         order: ["login"],
         limit: 10,
       });
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(httpStatusNotFound);
       expect(res.json).toHaveBeenCalledWith({ message: "No users(" });
     });
   });
@@ -99,7 +105,7 @@ describe("User Controller", () => {
       await getUsersByID(req, res);
 
       expect(User.findByPk).toHaveBeenCalledWith(2);
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(httpStatusNotFound);
       expect(res.json).toHaveBeenCalledWith({
         message: "User with id 2 not found!",
       });
@@ -116,7 +122,7 @@ describe("User Controller", () => {
       await getUsersByID(req, res);
 
       expect(User.findByPk).toHaveBeenCalledWith(3);
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.status).toHaveBeenCalledWith(httpStatusServerError);
       expect(res.json).toHaveBeenCalledWith({ message: "Server error" });
     });
   });
@@ -160,7 +166,7 @@ describe("User Controller", () => {
         password: "testPassword",
         age: 25,
       });
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.status).toHaveBeenCalledWith(httpStatusServerError);
       expect(res.json).toHaveBeenCalledWith({ message: "Server error" });
     });
   });
@@ -191,7 +197,7 @@ describe("User Controller", () => {
           returning: true,
         }
       );
-      expect(res.sendStatus).toHaveBeenCalledWith(200);
+      expect(res.sendStatus).toHaveBeenCalledWith(httpStatusOK);
     });
   });
   describe("deleteUser", () => {
@@ -215,7 +221,7 @@ describe("User Controller", () => {
           },
         }
       );
-      expect(res.sendStatus).toHaveBeenCalledWith(200);
+      expect(res.sendStatus).toHaveBeenCalledWith(httpStatusOK);
     });
   });
 
