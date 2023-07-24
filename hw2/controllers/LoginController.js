@@ -6,7 +6,6 @@ require("dotenv").config();
 
 export const login = async (req, res, next) => {
   const { login, password } = req.body;
-  console.log(process.env.JWT_SECRETKEY);
   try {
     const user = await getUserByCredentials(login, password);
 

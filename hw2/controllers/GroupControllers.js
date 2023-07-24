@@ -4,8 +4,8 @@ import { sequelize } from "../Middlewares/db-config/connector";
 
 const UserGroupModel = require("../model/UserGroupData");
 
-const findGroup = (reqId) => {
-  return GroupModel.findByPk(reqId);
+const findGroup = async (reqId) => {
+  return await GroupModel.findByPk(reqId);
 };
 
 export const getAllGroups = async (req, res) => {
@@ -71,7 +71,7 @@ export const putGroup = (req, res) => {
     });
 };
 
-export const deleteGroup = async (req, res) => {
+export const deleteGroup = (req, res) => {
   const id = req.params.id;
   GroupModel.destroy({ where: { id } })
     .then(() => res.sendStatus(200))

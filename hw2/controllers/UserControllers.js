@@ -38,7 +38,6 @@ export const getUsersByID = async (req, res) => {
         .json({ message: `User with id ${req.params.id} not found!` });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -49,7 +48,6 @@ export const postUser = async (req, res) => {
     const newUser = await User.create({ login, password, age });
     res.status(201).json(newUser);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -78,7 +76,7 @@ export const putUser = (req, res) => {
     });
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = (req, res) => {
   const id = req.params.id;
   User.update(
     {
@@ -98,9 +96,9 @@ export const deleteUser = async (req, res) => {
     });
 };
 
-export const getUserByCredentials = (login, password) => {
+export const getUserByCredentials = async (login, password) => {
   try {
-    return User.findOne({
+    return await User.findOne({
       where: {
         login,
         password,
